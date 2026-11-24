@@ -3754,8 +3754,8 @@ def notes_of(entries):
 
 
 def log_row(e, part=False):
-    """The log table's cells for an entry: Date, Map, Lv, Class, Party, Time, EXP/hr, Mesos/hr,
-    Net/hr, Note. `part`: one party size under a merged party line, so just its own numbers."""
+    """The log table's cells for an entry: Date, Map, Lv, Class, Party, Time, Total EXP, EXP/hr,
+    Total Mesos, Mesos/hr, Net/hr, Note. `part`: one party size under a merged party line, so just its own numbers."""
     d = date.fromisoformat(e["date"])
     day = f"{MONTHS[d.month - 1]} {d.day}" + ("" if d.year == date.today().year else f" '{d.year % 100:02d}")
     level = e["level"] if e["level"] is not None else "?"
@@ -3764,11 +3764,14 @@ def log_row(e, part=False):
     exp = f"{APPROX if e.get('estimated') else ''}{e['exp'] / e['seconds'] * 3600:,.0f}" if e["seconds"] else "—"
     ms = e.get("mesos_seconds", 0)
     mesos = f"{e['mesos'] / ms * 3600:,.0f}" if ms else ("?" if tracked else "")
+    gained = f"{APPROX if e.get('estimated') else ''}{e['exp']:,.0f}" if e.get("exp") is not None else "—"
+    mesos_total = f"{e['mesos']:,.0f}" if ms else ("?" if tracked else "")
     note = NOTE_MARK if note_of(e) else ""
     if part:
-        return "", "", "", "", party, fmt_logged(e["seconds"], short=True), exp, mesos, net_text(e), note
-    return (day, e["map"], level, e.get("class") or "", party, fmt_logged(e["seconds"], short=True), exp, mesos,
-            net_text(e), note)
+        return ("", "", "", "", party, fmt_logged(e["seconds"], short=True), gained, exp, mesos_total, mesos,
+                net_text(e), note)
+    return (day, e["map"], level, e.get("class") or "", party, fmt_logged(e["seconds"], short=True), gained, exp,
+            mesos_total, mesos, net_text(e), note)
 
 
 def party_groups(entries):
@@ -3803,7 +3806,7 @@ def group_row(entries, is_open=False):
     row = list(log_row(merged(entries)))
     sizes = [e["party"] for e in entries]
     row[4] = f"{sizes[0]}–{sizes[-1]}ppl {'▾' if is_open else '▸'}"
-    row[9] = NOTE_MARK if notes_of(entries) else ""
+    row[11] = NOTE_MARK if notes_of(entries) else ""
     return tuple(row)
 
 
@@ -4811,8 +4814,9 @@ class App:
         columns = (("date", "Date", "Sep 30", "w"), ("map", "Map", "The Swamp of Despair II", "w"),
                    ("lv", "Lv", "99", "center"), ("class", "Class", "Crossbowman", "w"),
                    ("party", "Party", "2–6ppl ▸", "center"),
-                   ("time", "Time", "12h 30m", "center"),
-                   ("exp", "EXP/hr", "888,888", "e"), ("mesos", "Mesos/hr", "888,888", "e"),
+                   ("time", "Time", "12h 30m", "center"), ("gained", "Total EXP", "88,888,888", "e"),
+                   ("exp", "EXP/hr", "888,888", "e"), ("mesos_total", "Total Mesos", "88,888,888", "e"),
+                   ("mesos", "Mesos/hr", "888,888", "e"),
                    ("net", "Net/hr", "888,888", "e"), ("note", "Note", NOTE_MARK, "center"))
         # Saved widths are in points, so they look the same on screens with different scaling
         # (older versions saved pixels: those are used as they are, once).
@@ -6456,7 +6460,7 @@ class App:
             tiles={"Last 5 min": approx_num(rolling, t.estimated), "Mesos / hr": fmt_num(m.per_hour(el)),
                    "Net / hr": net, "Elapsed": fmt_dur(el)},
             details={"% / hr": f"{rate / t.req * 100:.2f}%" if rate and t.req else "\u2014",
-                     "Gained": est(f"{fmt_short(t.gained)}{f'  (+{t.levels} lvl)' if t.levels else ''}"),
+                     "Gained": est(f"{fmt_num(t.gained)}{f'  (+{t.levels} lvl)' if t.levels else ''}"),
                      "Current": (APPROX if t.percent_mode else "") + f"{fmt_num(shown[0])} [{shown[1]:.2f}%]" if shown else "\u2014",
                      "Mesos": mesos, "Mesos / 5 min": fmt_num(m.per_5min(el)),
                      "Potion cost": self._potion_cost_text(now),

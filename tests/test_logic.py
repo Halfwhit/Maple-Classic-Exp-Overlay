@@ -118,7 +118,7 @@ e = {"date": "2026-10-11", "map": "The Land of Wild Boar II", "level": 29, "part
      "exp": 51862, "seconds": 3600, "mesos": 32713, "mesos_seconds": 3600}
 check("full line format", m.format_entry(e) ==
       "Oct 11th, 2026 - The Land of Wild Boar II - Lv 29 - 4ppl party - 51,862exp/hr - 32,713mesos/hr - 1 h 00 min")
-check("table row format", m.log_row(e)[1:] == ("The Land of Wild Boar II", 29, "", "4ppl", "1h 00m", "51,862", "32,713", "", ""))
+check("table row format", m.log_row(e)[1:] == ("The Land of Wild Boar II", 29, "", "4ppl", "1h 00m", f"{e['exp']:,.0f}", "51,862", f"{e['mesos']:,.0f}", "32,713", "", ""))
 check("the class is in the line", m.format_entry({**e, "class": "Bandit"}).startswith(
     "Oct 11th, 2026 - The Land of Wild Boar II - Lv 29 - Bandit - 4ppl party"))
 
@@ -134,10 +134,10 @@ check(f"a map's party sizes share a row, smallest first; solo, other levels and 
       shape == [[4, 5], [1], [3], [3], ["-"]])
 row = m.group_row(groups[0][1])
 check(f"the shared row is over all their time ({row[5:]})",
-      row[4:] == ("4–5ppl ▸", "1h 30m", f"{(51862 + 50000) / 5400 * 3600:,.0f}", f"{(32713 + 10000) / 5400 * 3600:,.0f}", "", ""))
+      row[4:] == ("4–5ppl ▸", "1h 30m", f"{51862 + 50000:,.0f}", f"{(51862 + 50000) / 5400 * 3600:,.0f}", f"{32713 + 10000:,.0f}", f"{(32713 + 10000) / 5400 * 3600:,.0f}", "", ""))
 check("open, its arrow points down", m.group_row(groups[0][1], True)[4] == "4–5ppl ▾")
 check("a party size under it shows just its own numbers",
-      m.log_row(five, part=True) == ("", "", "", "", "5ppl", "30m", "100,000", "20,000", "", ""))
+      m.log_row(five, part=True) == ("", "", "", "", "5ppl", "30m", "50,000", "100,000", "10,000", "20,000", "", ""))
 check("the lines themselves aren't changed", five["exp"] == 50000 and e["seconds"] == 3600)
 
 # ---- class, seals and 15-minute runs
@@ -427,14 +427,14 @@ log, path = new_log()
 t, _ = farm(log, 0, 310, party=4)
 e1 = log.entries[0]
 updated = e1["updated"]
-check("a line starts with no note", m.note_of(e1) == "" and m.log_row(e1)[9] == "" and "note" not in e1)
+check("a line starts with no note", m.note_of(e1) == "" and m.log_row(e1)[11] == "" and "note" not in e1)
 check("writing a note says it changed", log.set_note([e1], "  Great with a Priest.\r\nBring 200 pots \n") is True)
 on_disk = json.loads(path.read_text(encoding="utf-8"))["entries"][0]
 check(f"the note is in the log file, tidied up ({on_disk.get('note')!r})", on_disk.get("note") == "Great with a Priest.\nBring 200 pots")
 e1 = log.entries[0]
 check("the line is as trusted as before (a note isn't one of the sealed fields)", log.sealed(e1) and not log.edited(e1))
 check("a note doesn't move the line in the log (it isn't an update to it)", e1["updated"] == updated)
-check("the Note column shows a mark", m.log_row(e1)[9] == m.NOTE_MARK)
+check("the Note column shows a mark", m.log_row(e1)[11] == m.NOTE_MARK)
 check("notes aren't in the log's copy or in copied lines",
       "Priest" not in path.with_suffix(".txt").read_text(encoding="utf-8") and "Priest" not in m.format_entry(e1)
       and "Priest" not in log.text_path.read_text(encoding="utf-8"))
@@ -460,11 +460,11 @@ check("two party sizes get one note together", log.set_note([four, five_], "Pots
 check("a line's party sizes with different notes show each once; the same note shows once",
       m.notes_of([{"note": "A"}, {"note": "B"}, {"note": "A"}, {}]) == "A\n\nB" and m.notes_of([{}, {"note": ""}]) == "")
 check("a mark on the shared line if any of its party sizes has a note",
-      m.group_row([{**four, "note": ""}, {**five_, "note": "Only on this one"}])[9] == m.NOTE_MARK
-      and m.group_row([{**four, "note": "Only on this one"}, {**five_}])[9] == m.NOTE_MARK)
+      m.group_row([{**four, "note": ""}, {**five_, "note": "Only on this one"}])[11] == m.NOTE_MARK
+      and m.group_row([{**four, "note": "Only on this one"}, {**five_}])[11] == m.NOTE_MARK)
 log.set_note([log.entries[0]], "")
 log.set_note([log.entries[1]], "")
-check("...and none when none do", m.group_row(log.entries)[9] == "")
+check("...and none when none do", m.group_row(log.entries)[11] == "")
 
 # another copy of the overlay (or an older one) can't erase a note
 a, path = new_log()
@@ -501,7 +501,7 @@ lines = [{"date": "2026-10-1%d" % i, "map": "Map %d" % i, "level": 30, "party": 
           "note": n} for i, n in enumerate(odd)]
 (folder / "log.json").write_text(json.dumps({"version": 3, "entries": lines}), encoding="utf-8")
 log = m.AutoLog(15, folder / "log.json", folder / "log.txt")
-shown = [(m.note_of(x), m.log_row(x)[9]) for x in log.entries]
+shown = [(m.note_of(x), m.log_row(x)[11]) for x in log.entries]
 check("odd notes load, and can be shown", len(log.entries) == len(odd) and all(isinstance(n, str) and len(n) < 60000 for n, _ in shown)
       and not list(folder.glob("exp_log.damaged-*")))
 log._change(lambda: None)
@@ -1991,14 +1991,14 @@ check("nothing about potions is sent to the stats site", len(sent) == 1 and "pot
 pe = {"date": "2026-10-08", "map": "Rocky Road II", "level": 27, "party": 1, "class": "Bandit", "exp": 120000,
       "seconds": 3600, "mesos": 32713, "mesos_seconds": 3600, "potion_cost": 10000, "potions": {"Red Potion": 200}}
 check(f"a log line with a cost says its net mesos/hr ({m.format_entry(pe)})", "32,713mesos/hr - 22,713net/hr" in m.format_entry(pe))
-check("...and the table has a Net/hr cell", m.log_row(pe)[7:9] == ("32,713", "22,713"))
+check("...and the table has a Net/hr cell", m.log_row(pe)[9:11] == ("32,713", "22,713"))
 plain = {k: v for k, v in pe.items() if k not in ("potion_cost", "potions")}
-check("a line without a cost has no net", "net/hr" not in m.format_entry(plain) and m.log_row(plain)[8] == "")
-check("...a cost with no mesos reading has an unknown net", m.log_row({**pe, "mesos": 0, "mesos_seconds": 0})[8] == "?")
+check("a line without a cost has no net", "net/hr" not in m.format_entry(plain) and m.log_row(plain)[10] == "")
+check("...a cost with no mesos reading has an unknown net", m.log_row({**pe, "mesos": 0, "mesos_seconds": 0})[10] == "?")
 second = {**pe, "level": 28, "seconds": 1800, "mesos": 10000, "mesos_seconds": 1800, "potion_cost": 2000}
 row = m.group_row([{**pe, "party": 4}, {**second, "party": 5}])
-check(f"a map's party sizes together: net is over all their time ({row[8]})",
-      row[8] == f"{(32713 + 10000 - 12000) / 5400 * 3600:,.0f}")
+check(f"a map's party sizes together: net is over all their time ({row[10]})",
+      row[10] == f"{(32713 + 10000 - 12000) / 5400 * 3600:,.0f}")
 
 # ---- mesos in the log from sparse looks: the log gets every look, however old, and takes the
 # mesos gained between the first and the last look of each stretch
@@ -2081,8 +2081,8 @@ check("...and keeps its seal", log.sealed(e))
 plain = {"date": "2026-10-08", "map": "Rocky Road II", "level": 27, "party": 1, "class": "Bandit", "exp": 1,
          "seconds": 1800, "mesos": 9000, "mesos_seconds": 1800}
 costly = dict(plain, seconds=3600, mesos=36000, mesos_seconds=3600, potion_cost=3600)
-check(f"a group of lines with and without a cost: the cost is per hour of the lines that had one ({m.group_row([costly, plain])[8]})",
-      m.group_row([costly, plain])[8] == f"{45000 / 5400 * 3600 - 3600:,.0f}")
+check(f"a group of lines with and without a cost: the cost is per hour of the lines that had one ({m.group_row([costly, plain])[10]})",
+      m.group_row([costly, plain])[10] == f"{45000 / 5400 * 3600 - 3600:,.0f}")
 
 # ---- clean runs for the website: a run with a shop, storage or trade window, or a doubtful
 # mesos number, never takes mesos to the site (the local log keeps them)
@@ -2286,12 +2286,12 @@ check(f"A13-3: estimated runs still count as done runs ({log.runs_done(r['map'],
 line = {"date": "2026-10-08", "map": "Rocky Road II", "level": 60, "party": 1, "class": "Bandit", "exp": 4000,
         "seconds": 1800, "mesos": 0, "mesos_seconds": 0}
 check("an estimated line says so in its row and in the copied text",
-      m.log_row(dict(line, estimated=True))[6] == "≈" + m.log_row(line)[6]
+      m.log_row(dict(line, estimated=True))[7] == "≈" + m.log_row(line)[7]
       and "≈8,000exp/hr" in m.format_entry(dict(line, estimated=True)))
-check("an exact line shows no approx sign", "≈" not in m.log_row(line)[6] and "≈" not in m.format_entry(line))
+check("an exact line shows no approx sign", "≈" not in m.log_row(line)[7] and "≈" not in m.format_entry(line))
 check("party sizes merged into one line stay marked if any of them was estimated",
-      m.log_row(m.merged([dict(line, party=3), dict(line, party=4, estimated=True)]))[6].startswith("≈")
-      and not m.log_row(m.merged([dict(line, party=3), dict(line, party=4)]))[6].startswith("≈"))
+      m.log_row(m.merged([dict(line, party=3), dict(line, party=4, estimated=True)]))[7].startswith("≈")
+      and not m.log_row(m.merged([dict(line, party=3), dict(line, party=4)]))[7].startswith("≈"))
 
 # mesos for the site only from a look at the start and one within 30 s after the end
 log, _ = new_log()
