@@ -24,7 +24,13 @@ NOT_A_TOWN = re.compile(r"Florina Beach|Marr's Forest|Forgotten Hollow|Henesys P
 
 # Maps the game has that meowdb's page doesn't (yet): new maps, event maps. Add "Name" or ("Name", is_town) here
 # (see tools/moderation.sql, query 10), then run this again and deploy. They then show at once.
-EXTRA_MAPS = []
+EXTRA_MAPS = [
+    # Names meowdb listed on 2026-10-19 but no longer does (renamed or merged there); kept so they are still
+    # spelled and the shop still counts as a town if the game shows them.
+    ("Cave Fairy Department Store", True), "Collision of Ice and Fire", "The Murky Swamp",
+    "Forgotten Hollow Instance 080003000", "Forgotten Hollow Instance 080003100",
+    "Forgotten Hollow Instance 080003200", "Forgotten Hollow Instance 080003300",
+]
 
 
 def parse(page):

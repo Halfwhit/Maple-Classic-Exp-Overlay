@@ -33,6 +33,7 @@ B3 <Area 1>	0
 B3 <Area 2>	0
 B3 <Area 3>	0
 B3 <Subway Depot>	0
+Back to Town	0
 Backalley Semi-Basement	0
 Beach Hunting Ground	0
 Before Takeoff <To Ellinia>	1
@@ -42,9 +43,13 @@ Bygone Days	0
 Cabin <To Ellinia>	1
 Cabin <To Orbis>	1
 Cabin of the Forsaken	0
+Camp 1	0
+Camp 2	0
+Camp 3	0
 Caution Falling Down	0
 Cave Fairy Department Store	1
 Cave Fairy Sanctuary	1
+Cave Fairy Store	1
 Cave Within the Cave	0
 Chief's Residence	1
 Clang and Lorang	0
@@ -132,7 +137,16 @@ Forgotten Hollow Instance 080003300	0
 Forgotten Hollow Instance 080003500	0
 Free Market <10>	1
 Free Market <11>	1
+Free Market <12>	1
+Free Market <13>	1
+Free Market <14>	1
+Free Market <15>	1
+Free Market <16>	1
+Free Market <17>	1
+Free Market <18>	1
+Free Market <19>	1
 Free Market <1>	1
+Free Market <20>	1
 Free Market <2>	1
 Free Market <3>	1
 Free Market <4>	1
@@ -156,6 +170,7 @@ Golem's Temple II	0
 Golem's Temple III	0
 Golem's Temple IV	0
 Guild Head Quarters<Hall of Fame>	1
+Hanging Gardens of Rot	0
 Henesys	1
 Henesys Department Store	1
 Henesys Dungeon Entrance	0
@@ -251,6 +266,7 @@ Orbis Tower <9th Floor>	0
 Orbis Tower <Hidden Room>	0
 Orbis Weapon Store	1
 Over the Wall	0
+Parched Land	0
 Perilous Descent I	0
 Perilous Descent II	0
 Perilous Descent III	0
@@ -275,10 +291,12 @@ Physical Fitness Test <Normal Waiting Room>	1
 Physical Fitness Test <Waiting Room>	1
 Pig Park	0
 Pig Park II	0
+Pig Town	0
 Precipice of Darkness	0
 Primeval Forest I	0
 Primeval Forest II	0
 Primeval Forest III	0
+Primrose Hill	0
 Receiving the Reward For the Event	0
 Regular Sauna	0
 Remains <Cliff>	0
@@ -290,12 +308,14 @@ Right Around Lith Harbor	0
 Rocky Road I	0
 Rocky Road II	0
 Rocky Road III	0
+Rotten House	1
 Sanctuary Entrance I	0
 Sanctuary Entrance II	0
 Sanctuary Entrance III	0
 Sanctuary Entrance IV	0
 Sharp Cliff I	0
 Sharp Cliff II	0
+Shortcut	0
 Sleepy Dungeon I	0
 Sleepy Dungeon II	0
 Sleepy Dungeon III	0
@@ -350,6 +370,7 @@ The Door to Zakum	0
 The End of Fleeting Light	0
 The Entrance of Golem's Temple	0
 The Faded Canopy	0
+The Faded Threshold	1
 The Field East of Amherst	0
 The Field South of Ellinia	0
 The Field Up North of Ellinia	0
@@ -370,6 +391,8 @@ The Hermit's Cabin	0
 The Hill East of Henesys	0
 The Land of Wild Boar II	0
 The Murky Swamp	0
+The Murky Swamp I	0
+The Murky Swamp II	0
 The Passage	0
 The Pig Beach	0
 The Rain-Forest East of Henesys	0
